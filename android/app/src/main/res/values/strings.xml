@@ -1,0 +1,5 @@
+<resources>
+    <string name="facebook_app_id">909045469696685</string>
+    <string name="fb_login_protocol_scheme">fb909045469696685</string>
+    <string name="app_name">AppTestTypescriptA3</string>
+</resources>
