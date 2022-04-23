@@ -36,7 +36,7 @@ node_modules/
 npm-debug.log
 yarn-error.log
 android/app/buid/
-
+android/java_pid5320.hprof
 # BUCK
 buck-out/
 \.buckd/
