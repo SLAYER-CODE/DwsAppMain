@@ -5,7 +5,7 @@ import { styles } from '../Stylos/Styles'
 
 function CarritoDeCompras() {
     return (
-        <SafeAreaView style={[styles.containerAbsolute, { backgroundColor: '#004B63' }]}>
+        <SafeAreaView style={[styles.containerAbsolute, { backgroundColor: '#ff9900' }]}>
             <Text>
                 Perfil
             </Text>

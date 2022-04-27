@@ -8,7 +8,7 @@
  * @format
  */
 
-import React, { Fragment } from 'react';
+import React, {Fragment} from 'react';
 import {
   SafeAreaView,
   ScrollView,
@@ -27,14 +27,14 @@ import {
   ReloadInstructions,
 } from 'react-native/Libraries/NewAppScreen';
 import AppIndex from './src/Component/index';
-import { ApolloClient, InMemoryCache, ApolloProvider } from '@apollo/client';
-import { appclient } from './src/apollo/client';
-import { Settings } from 'react-native-fbsdk-next';
-import { MMKV } from 'react-native-mmkv'
+import {ApolloClient, InMemoryCache, ApolloProvider} from '@apollo/client';
+import {appclient} from './src/apollo/client';
+import {Settings} from 'react-native-fbsdk-next';
+import {MMKV} from 'react-native-mmkv';
 
-export const storagemkv = new MMKV()
+export const storagemkv = new MMKV();
 const App = () => {
-  Settings.initializeSDK()
+  Settings.initializeSDK();
   return (
     <ApolloProvider client={appclient}>
       <Fragment>

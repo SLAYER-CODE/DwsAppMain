@@ -2,9 +2,9 @@ import React from 'react'
 import { SafeAreaView, Text, View } from 'react-native'
 import { styles } from '../Stylos/Styles'
 
-function Configuracion() {
+function Productos() {
     return (
-        <SafeAreaView style={[styles.containerAbsolute, { backgroundColor: '#004B63' }]}>
+        <SafeAreaView style={[styles.containerAbsolute, { backgroundColor: '#ff8000' }]}>
             <Text>
                 Perfil
             </Text>
@@ -12,4 +12,4 @@ function Configuracion() {
     )
 }
 
-export default Configuracion
+export default Productos

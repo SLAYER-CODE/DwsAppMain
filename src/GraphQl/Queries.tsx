@@ -1,13 +1,11 @@
-import { gql } from '@apollo/client'
+import {gql} from '@apollo/client';
+import {buildClientSchema, buildSchema} from 'graphql';
 
 export const LOAD_SESSIONS = gql`
-query{
+  query LoadSessions {
     Sessiones {
-      picture
+      photo
       email
-      lastname
-      name
-      password
       username
       random_code
       phone_id {
@@ -18,62 +16,57 @@ query{
       shoppingCardt_id {
         shoppingCardt_id
       }
-  
+
       wish_id {
         wish_id
       }
     }
-}
-`
+  }
+`;
 
 export const ADD_USER = gql`
-  mutation($createSessionsMyval: UsersInput!){createSessions(myval: $createSessionsMyval) {
-    email
-    lastname
-    name
-    password
-    birthday
-    random_code
-    picture
-    username
-  }}
-`
-export const COMPROBATION_SESSIONS = gql`
-query($token: String!){
-  comprobationUser(token: $token)
-}
-`
+  mutation AddUser($createSessionsMyval: UsersInput!) {
+    createSessions(myval: $createSessionsMyval) {
+      email
+      birthday
+      random_code
+      photo
+    }
+  }
+`;
 
+export const COMPROBATION_SESSIONS = gql`
+  query ComprobationSessions($token: String!) {
+    comprobationUser(token: $token)
+  }
+`;
 
 export const GET_CATEGORIES = gql`
-query{
-  Categories{
-    category_id
-    category_name
+  query GetCategories {
+    Categories {
+      category_id
+      category_name
+    }
   }
-}
-`
-
+`;
 
 export const ADD_PRODUCTO = gql`
-  mutation($createproduct: ProductsInput!){
+  mutation AddProducto($createproduct: ProductsInput!) {
     createproduct(myval: $createproduct) {
       product_id
     }
   }
-`
-
+`;
 
 export const GET_PRODUCTO = gql`
-query{
-  Products {
-    brand
-    description
-    old_price
-    price
-    product_id
-    product_name
-    quantity
+  query Get_Producto {
+    Products {
+      brand
+      description
+      old_price
+      product_id
+      product_name
+      quantity
+    }
   }
-}
-`
+`;

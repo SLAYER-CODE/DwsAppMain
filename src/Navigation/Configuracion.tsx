@@ -1,17 +1,15 @@
 import React from 'react'
 import { SafeAreaView, Text, View } from 'react-native'
 import { styles } from '../Stylos/Styles'
-import Preview from './Preview'
 
-function Categorias() {
+function Configuracion() {
     return (
-        <SafeAreaView style={[styles.containerAbsolute, { backgroundColor: '#004B63' }]}>
+        <SafeAreaView style={[styles.containerAbsolute, { backgroundColor: '#ff9900' }]}>
             <Text>
                 Perfil
             </Text>
-            <Preview/>
         </SafeAreaView>
     )
 }
 
-export default Categorias
+export default Configuracion
