@@ -184,21 +184,21 @@ const Menu: React.FC<{propiedades: DrawerContentComponentProps}> = ({
         />
         <DrawerMenu
           IconName="store-alt"
-          Name="Mis Productos"
+          Name="Mis Servicios"
           callNavigate="Productos"
           colore={stateItem}
           changeColor={setstate}
         />
         <DrawerMenu
           IconName="business-time"
-          Name="Mis Ventas"
+          Name="Mis Clientes"
           callNavigate="Ventas"
           colore={stateItem}
           changeColor={setstate}
         />
         <DrawerMenu
           IconName="shopping-cart"
-          Name="Mi Carrito"
+          Name="Proveedores"
           callNavigate="CarritoDeCompras"
           colore={stateItem}
           changeColor={setstate}
@@ -272,12 +272,12 @@ function ScrennMain() {
       <Drawer.Screen
         name="Productos"
         component={Productos}
-        options={{title: 'Almacen de Productos'}}
+        options={{title: 'Servicios publicados'}}
       />
       <Drawer.Screen
         name="Ventas"
         component={Ventas}
-        options={{title: 'Mis Ventas'}}
+        options={{title: 'Mis Clientes'}}
       />
       <Drawer.Screen
         name="Transacciones"
@@ -287,7 +287,7 @@ function ScrennMain() {
       <Drawer.Screen
         name="CarritoDeCompras"
         component={CarritoDeCompras}
-        options={{title: 'Mi Carrito de Compras'}}
+        options={{title: 'Mis Proveedores'}}
       />
        <Drawer.Screen
         name="Perfil"

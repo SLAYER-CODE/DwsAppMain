@@ -10,7 +10,7 @@ import org.reactnative.camera.RNCameraPackage;
 import com.facebook.react.ReactInstanceManager;
 import com.facebook.react.ReactNativeHost;
 import com.facebook.react.ReactPackage;
-import com.facebook.react.bridge.JSIModulePackage;
+// import com.facebook.react.bridge.JSIModulePackage;
 import com.facebook.soloader.SoLoader;
 import java.lang.reflect.InvocationTargetException;
 import java.util.List;
@@ -43,10 +43,10 @@ public class MainApplication extends Application implements ReactApplication {
 
 
 //          // Add this method here!
-          @Override
-          protected JSIModulePackage getJSIModulePackage() {
-              return new LuembJSIPackage(); // <-- your package's name
-          }
+          // @Override
+          // protected JSIModulePackage getJSIModulePackage() {
+          //     return new LuembJSIPackage(); // <-- your package's name
+          // }
       };
 
   @Override

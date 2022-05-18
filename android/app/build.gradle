@@ -1,5 +1,4 @@
 apply plugin: "com.android.application"
-apply plugin: 'com.android.application'
 
 apply plugin: 'com.google.gms.google-services' // <- Add this line
 import com.android.build.OutputFile
@@ -134,6 +133,9 @@ android {
         sourceCompatibility JavaVersion.VERSION_1_8
         targetCompatibility JavaVersion.VERSION_1_8
     }
+      aaptOptions {
+    cruncherEnabled = false
+    }
 
     defaultConfig {
         applicationId "com.apptesttypescripta3"
@@ -213,6 +215,7 @@ android {
 //}
 
 dependencies {
+    implementation project(':react-native-mmkv')
     implementation project(':react-native-camera')
 
     implementation fileTree(dir: "libs", include: ["*.jar"])

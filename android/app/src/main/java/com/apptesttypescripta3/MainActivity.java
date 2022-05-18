@@ -17,4 +17,8 @@ public class MainActivity extends ReactActivity {
   protected void onCreate(Bundle savedInstanceState) {
     super.onCreate(null);
   }
+  //  @Override
+  // protected JSIModulePackage getJSIModulePackage() {
+  //   return new ExampleJSIPackage(); // <-- el nombre de su paquete
+  // }
 }

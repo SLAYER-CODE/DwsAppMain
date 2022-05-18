@@ -6,7 +6,6 @@ export const LOAD_SESSIONS = gql`
     Sessiones {
       photo
       email
-      username
       random_code
       phone_id {
         phone_id
@@ -63,6 +62,7 @@ export const GET_PRODUCTO = gql`
     Products {
       brand
       description
+      price
       old_price
       product_id
       product_name

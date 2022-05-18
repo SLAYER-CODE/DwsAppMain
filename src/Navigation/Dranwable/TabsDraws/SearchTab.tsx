@@ -7,7 +7,7 @@ function SearchTab() {
     return (
         <SafeAreaView style={[styles.containerAbsolute, { backgroundColor: '#e67f1250' }]}>
             <Text>
-                Perfil
+                Busqueda de Productos
             </Text>
         </SafeAreaView>
     )

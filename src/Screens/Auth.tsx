@@ -77,7 +77,7 @@ import {
 } from '../GraphQl/Queries';
 import {useLazyQuery, useMutation, useQuery} from '@apollo/client';
 import {appclient} from '../apollo/client';
-import {or} from 'react-native-reanimated';
+// import {or} from 'react-native-reanimated';
 import { AddUser, AddUser_createSessions, ComprobationSessions } from '../GraphQl/TypesGraphql';
 // import {initUserAuth} from '../Globals/Globals'
 
