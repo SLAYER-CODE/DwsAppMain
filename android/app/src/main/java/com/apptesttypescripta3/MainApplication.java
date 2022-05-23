@@ -39,14 +39,6 @@ public class MainApplication extends Application implements ReactApplication {
         protected String getJSMainModuleName() {
           return "index";
         }
-
-
-
-//          // Add this method here!
-          @Override
-          protected JSIModulePackage getJSIModulePackage() {
-              return new LuembJSIPackage(); // <-- your package's name
-          }
       };
 
   @Override

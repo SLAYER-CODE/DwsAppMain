@@ -53,7 +53,9 @@ import {Item} from 'react-navigation-header-buttons';
 import AwesomeButton, {
   AfterPressFn,
 } from 'react-native-really-awesome-button-fixed';
+
 import {categoria, publicacion} from '../../../GraphQl/TypesGrapql';
+
 import auth from '@react-native-firebase/auth';
 import {Easing} from 'react-native-reanimated';
 import {
@@ -1008,26 +1010,46 @@ function HomeTab() {
                     });
                     console.log(generateCategories);
                     console.log('Iniciando consulta');
-                    
+                    console.log( PubNombre.current?.value());
+                    console.log( parseFloat(
+                      PubPrecio.current?.value().toString()!,
+                    ));
+                    console.log( parseFloat(
+                      PubPrecio.current?.value().toString()!));
+                    console.log(1 );
+                    console.log( "Marca"+ PubMarca.current?.value() );
+                    console.log( generateCategories);
+
+
                     const {data, errors: final} = await client.mutate({
                       mutation: ADD_PRODUCTO,
                       variables: {
-                        data: {
-                          createproductSessionsMyval2: {
-                            product_name: PubNombre.current?.value(),
-                            description: Pubdescripcion.current?.value(),
-                            price: parseFloat(
-                              PubPrecio.current?.value().toString()!,
-                            ),
-                            old_price: parseFloat(
-                              PubPrecio.current?.value().toString()!,
-                            ),
-                            quantity: parseInt(PubCantidad.current?.value()!),
-                            brand: PubMarca.current?.value(),
-                            category_products: generateCategories,
-                          },
-                        },
-                        // createproductSessionsMyval2: {
+                        // data: {
+                          // myval: {
+                          //   product_name: PubNombre.current?.value(),
+                          //   description: Pubdescripcion.current?.value(),
+                          //   price: parseFloat(
+                          //     PubPrecio.current?.value().toString()!,
+                          //   ),
+                          //   old_price: parseFloat(
+                          //     PubPrecio.current?.value().toString()!,
+                          //   ),
+                          //   quantity:1,
+                          //   brand: PubMarca.current?.value(),
+                          //   category_products: generateCategories,
+                          // },
+                             myval: {
+                              product_name: PubNombre.current?.value(),
+                              description:  Pubdescripcion.current?.value(),
+                              price: 12.2,
+                              old_price: 2.2,
+                              quantity:1,
+                              brand: "Ultimo",
+                              category_products:generateCategories,
+                            },
+                        // },
+                        
+                        // myval: {
                         //     brand: imagesCapture.length != 0 ? imagesCapture.toString() : 'null',
                         //     description: Pubdescripcion.current?.value(),
                         //     old_price: PubPrecio.current?.value() != "" ? parseFloat(PubPrecio.current?.value()!) : 0.0,
@@ -1035,8 +1057,18 @@ function HomeTab() {
                         //     product_name: auth().currentUser?.displayName,
                         //     quantity: 1
                         // }
+                     
                       },
-                    });
+                      
+                    })
+                    console.log('||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||');
+                    console.log(final)
+                    // .catch(()=>{
+                    //   console.log('||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||');
+                    //   console.log(final)
+                    // });
+                    // console.log('||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||');
+                    // console.log(error)
 
                     // console.log(errors)
                     if (data == undefined) {

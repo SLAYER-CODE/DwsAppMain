@@ -5,9 +5,8 @@ export const LOAD_SESSIONS = gql`
   query LoadSessions {
     Sessiones {
       photo
-      email
-      username
-      random_code
+      email 
+      random_code 
       phone_id {
         phone_id
         phone_number
@@ -51,8 +50,8 @@ export const GET_CATEGORIES = gql`
 `;
 
 export const ADD_PRODUCTO = gql`
-  mutation AddProducto($createproduct: ProductsInput!) {
-    createproduct(myval: $createproduct) {
+  mutation AddProducto($myval: ProductsInput!) {
+    createproduct(myval: $myval) {
       product_id
     }
   }
@@ -63,6 +62,7 @@ export const GET_PRODUCTO = gql`
     Products {
       brand
       description
+      price
       old_price
       product_id
       product_name
