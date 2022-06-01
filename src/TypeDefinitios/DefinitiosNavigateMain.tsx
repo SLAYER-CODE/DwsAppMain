@@ -1,3 +1,6 @@
+import { ClientLocationProps } from "../Navigation/Dranwable/TabsDraws/atoms/ClientLocation";
+import { HomeLocationProps } from "../Navigation/Dranwable/TabsDraws/atoms/HomeLocation";
+
 type RootStackParamList = {
   PresOne: undefined;
   PresTwo: undefined;
@@ -10,6 +13,9 @@ export type RootMain = {
   CountOldRecuperate: undefined;
   MainInit: undefined;
 };
+
+
+
 export type SubDrawerParamList = {
   Perfil: undefined;
   Home: undefined;
@@ -21,6 +27,7 @@ export type SubDrawerParamList = {
   Configuracion: undefined;
   Unlogin: undefined;
   Preview: undefined;
+  Contratados:undefined;
 };
 
 export type HomeParamList = {
@@ -29,5 +36,17 @@ export type HomeParamList = {
   Agregate: undefined;
   Chat: undefined;
 };
+// Items que localisan el servicio o el usuario
+export type HomeUbication = {
+  Home: undefined;
+  Location: HomeLocationProps;
+};
+
+export type ClientsUbication = {
+  Ventas: undefined;
+  Location: ClientLocationProps;
+};
 
 export default RootStackParamList;
+
+

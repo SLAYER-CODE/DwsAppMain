@@ -15,6 +15,7 @@ import { useNavigation } from '@react-navigation/native';
 import { storagemkv } from '../../App';
 import { DrawerNavigationProp } from '@react-navigation/drawer';
 import RNRestart from 'react-native-restart'; // Import package from node modules
+import { LoginManager } from 'react-native-fbsdk-next';
 
 function Perfil() {
     // type ProfileTab = DrawerNavigationProp<HomeParamList, 'Home'>;
@@ -141,6 +142,7 @@ function Perfil() {
                             nextt!(async () => {
                                 await storagemkv.set('autentication', false);
                                 await auth().signOut();
+                                LoginManager.logOut()
                                 await RNRestart.Restart();
                                 // AuthStack.navigate("Unlogin")
 

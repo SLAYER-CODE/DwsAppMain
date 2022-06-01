@@ -1,5 +1,5 @@
-import React, {RefObject, useEffect, useState} from 'react';
-import {Alert, Animated} from 'react-native';
+import React, { RefObject, useEffect, useState } from 'react';
+import { Alert, Animated } from 'react-native';
 
 import {
   View,
@@ -10,12 +10,12 @@ import {
   StyleSheet,
   ImageBackground,
 } from 'react-native';
-import {Text} from 'react-native-animatable';
-import {SafeAreaView} from 'react-native-safe-area-context';
-import {styles} from '../Stylos/Styles';
+import { Text } from 'react-native-animatable';
+import { SafeAreaView } from 'react-native-safe-area-context';
+import { styles } from '../Stylos/Styles';
 import RadialGradient from 'react-native-radial-gradient';
 // import { call, } from 'react-native-reanimated'
-import {TapGestureHandler, State} from 'react-native-gesture-handler';
+import { TapGestureHandler, State } from 'react-native-gesture-handler';
 import AwesomeButton, {
   AfterPressFn,
   AwesomeButtonProps,
@@ -32,7 +32,7 @@ import {
   OutlinedTextField,
 } from 'rn-material-ui-textfield';
 
-import {NativeStackNavigationProp} from '@react-navigation/native-stack';
+import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import {
   CardStyleInterpolators,
   createStackNavigator,
@@ -41,7 +41,7 @@ import {
 import RootStackParamList, {
   RootMain,
 } from '../TypeDefinitios/DefinitiosNavigateMain';
-import {useNavigation, CommonActions} from '@react-navigation/native';
+import { useNavigation, CommonActions } from '@react-navigation/native';
 import ReguisterScreen from './ReguisterScreen';
 import RecuperateScreen from './RecuperateScreen';
 import ScrennMain from './ScrennMain';
@@ -60,25 +60,27 @@ import {
   OverflowMenu,
   HeaderButtons,
 } from 'react-navigation-header-buttons';
-import {navigationRef} from './RootReference';
-import {BlurView} from '@react-native-community/blur';
+import { navigationRef } from './RootReference';
+import { BlurView } from '@react-native-community/blur';
 
 // import BlurOverlay, { closeOverlay, openOverlay } from 'react-native-blur-overlay';
 
-import auth, {FirebaseAuthTypes} from '@react-native-firebase/auth';
-import {LoginManager, AccessToken} from 'react-native-fbsdk-next';
+import auth, { FirebaseAuthTypes } from '@react-native-firebase/auth';
+import { LoginManager, AccessToken } from 'react-native-fbsdk-next';
 
-import {GoogleSignin} from '@react-native-google-signin/google-signin';
-import {storagemkv} from '../../App';
+import { GoogleSignin } from '@react-native-google-signin/google-signin';
+import { storagemkv } from '../../App';
 import {
   ADD_USER,
   COMPROBATION_SESSIONS,
   GET_CATEGORIES,
 } from '../GraphQl/Queries';
-import {useLazyQuery, useMutation, useQuery} from '@apollo/client';
-import {appclient} from '../apollo/client';
+import { useLazyQuery, useMutation, useQuery } from '@apollo/client';
+import { appclient } from '../apollo/client';
 // import {or} from 'react-native-reanimated';
-import { AddUser, AddUser_createSessions, ComprobationSessions } from '../GraphQl/TypesGraphql';
+import { AddUser, AddUser_createSessions, ComprobationSessions } from '../GraphQl/Types';
+import { Checkbox } from 'react-native-paper';
+import { ReactNativeFirebase } from '@react-native-firebase/app';
 // import {initUserAuth} from '../Globals/Globals'
 
 type ProfileScreenHomeNavigation = NativeStackNavigationProp<RootMain, 'Auth'>;
@@ -105,7 +107,7 @@ GoogleSignin.configure({
 async function onGoogleButtonPress() {
   console.debug(LOGFRAG, 'GoogleButtonPress');
   // Get the users ID token
-  const {idToken} = await GoogleSignin.signIn(); 
+  const { idToken } = await GoogleSignin.signIn();
 
   // Create a Google credential with the token
   const googleCredential = auth.GoogleAuthProvider.credential(idToken);
@@ -118,6 +120,7 @@ async function onGoogleButtonPress() {
 
 async function onFacebookButtonPress() {
   // Attempt login with permissions
+  
   console.debug(LOGFRAG, 'FaceeboockButtonPress');
   const result = await LoginManager.logInWithPermissions([
     'public_profile',
@@ -146,11 +149,13 @@ async function onFacebookButtonPress() {
 
   // Once signed in, get the users AccesToken
   const data = await AccessToken.getCurrentAccessToken();
- 
+
   if (!data) {
     throw 'Something went wrong obtaining access token';
   }
 
+  LoginManager.logOut()
+  
   // Create a Firebase credential with the AccessToken
   const facebookCredential = auth.FacebookAuthProvider.credential(
     data.accessToken,
@@ -222,9 +227,9 @@ function Autenticate() {
   const [token, setoken] = React.useState<String | undefined>();
   const [uid, setuid] = React.useState<String>();
 
-  const [comprobation, {loading, data}] = useLazyQuery<ComprobationSessions>(COMPROBATION_SESSIONS);
+  const [comprobation, { loading, data }] = useLazyQuery<ComprobationSessions>(COMPROBATION_SESSIONS);
 
-  const [addUser, {loading: loadadd, data: dataadd}] = useMutation<AddUser_createSessions>(ADD_USER);
+  const [addUser, { loading: loadadd, data: dataadd }] = useMutation<AddUser_createSessions>(ADD_USER);
   console.debug(LOGFRAG, 'SE INICIO!!!!');
   React.useEffect(() => {
     if (dataadd != undefined) {
@@ -233,14 +238,14 @@ function Autenticate() {
   }, [dataadd]);
 
   React.useEffect(() => {
-    
+
     console.info('Valor de resultado' + data);
     if (data != undefined) {
       if (data.comprobationUser) {
         console.info('La comprobacion es verdadera');
         AuthStack.reset({
           index: 1,
-          routes: [{name: 'MainInit'}],
+          routes: [{ name: 'MainInit' }],
         });
       } else {
         // console.log(data);
@@ -258,15 +263,15 @@ function Autenticate() {
               photo: auth().currentUser?.photoURL?.toString(),
               username: auth().currentUser?.displayName?.toString(),
             },
-          } ,
+          },
         });
-        
+
         console.info('Autenticacion creada con exito');
         storagemkv.set('autentication', true);
         // AuthStack.navigate("MainInit")
         AuthStack.reset({
           index: 1,
-          routes: [{name: 'MainInit'}],
+          routes: [{ name: 'MainInit' }],
         });
       }
     }
@@ -305,14 +310,14 @@ function Autenticate() {
         console.log(pwd.claims);
         console.log(pwd.authTime);
       });
-    appclient.query({query: GET_CATEGORIES}).then(result => {
+    appclient.query({ query: GET_CATEGORIES }).then(result => {
       console.log(result.errors);
       console.log(result.data);
     });
     storagemkv.set('autentication', true);
     AuthStack.reset({
       index: 1,
-      routes: [{name: 'MainInit'}],
+      routes: [{ name: 'MainInit' }],
     });
     // comprobation({ variables: { token: auth().currentUser?.uid.toString() } })
   }
@@ -388,10 +393,10 @@ function Autenticate() {
 
   return (
     <>
-      <SafeAreaView style={[styles.container, {backgroundColor: '#fa7907'}]}>
+      <SafeAreaView style={[styles.container, { backgroundColor: '#fa7907' }]}>
         <StatusBar hidden={true} showHideTransition={'fade'} />
 
-        <View style={{position: 'absolute', top: 40, alignItems: 'center'}}>
+        <View style={{ position: 'absolute', top: 40, alignItems: 'center' }}>
           <View
             style={{
               position: 'absolute',
@@ -417,9 +422,9 @@ function Autenticate() {
                 style={{
                   zIndex: 0,
                   transform: [
-                    {scaleX: -1},
-                    {rotateY: '25deg'},
-                    {rotate: '-30deg'},
+                    { scaleX: -1 },
+                    { rotateY: '25deg' },
+                    { rotate: '-30deg' },
                   ],
                   width: 250,
                   height: 250,
@@ -493,7 +498,9 @@ function Autenticate() {
             }}>
             Inicie Sessión
           </Text>
-
+          <Text style={{ fontWeight: 'bold' ,top:10,color:'#FFF',textShadowColor:'black',textShadowRadius:5 , height:100 }}>
+          Al acceder y utilizar esta Aplicación, usted (“Usuario”) reconoce que ha leído y aceptado estas Condiciones Generales de Uso, y se compromete a cumplir con todos sus términos y condiciones. Asimismo, el Usuario reconoce y acepta que el acceso y uso de esta Aplicación estará sujeto a las Condiciones Generales de Uso que se encuentren en vigor en el momento en que acceda a la misma. La DWS se reserva el derecho de modificar en cualquier momento las presentes Condiciones Generales de Uso, difundiendo la respectiva versión vigente a través de su portal web. Asimismo, se reserva el derecho a suspender, interrumpir o dejar de operar la Aplicación en cualquier momento.
+          </Text>
           <View
             style={{
               width: 280,
@@ -501,7 +508,6 @@ function Autenticate() {
               marginLeft: 50,
               paddingRight: 20,
               paddingLeft: 10,
-              marginTop: 60,
             }}>
             <TextField
               ref={email}
@@ -597,7 +603,7 @@ function Autenticate() {
             />
 
             {error == true ? (
-              <View style={{alignItems: 'center'}}>
+              <View style={{ alignItems: 'center' }}>
                 <Text
                   style={{
                     fontWeight: 'bold',
@@ -618,14 +624,19 @@ function Autenticate() {
                 flexDirection: 'column',
                 position: 'relative',
               }}>
-              <View style={{flex: 1}}>
+              <View style={{ flex: 1 ,top:-30}}>
+                <View style={{ flex: 1, flexDirection: "row", justifyContent: 'center', alignContent: 'center' }}>
+
+                  {/* <Checkbox status={'unchecked'}>
+                  </Checkbox> */}
+
+                </View>
+
                 <Text
                   onPress={() => {
                     AuthStack.navigate('Reguister');
                   }}
                   style={{
-                    height: 30,
-                    top: 15,
                     textShadowColor: animation.interpolate({
                       inputRange: [0, 1],
                       outputRange: ['#ffffff', 'red'],
@@ -647,7 +658,6 @@ function Autenticate() {
                   }}
                   style={{
                     height: 30,
-                    top: 10,
                     textShadowColor: animationpwdError.interpolate({
                       inputRange: [0, 1],
                       outputRange: ['#ffffff', 'red'],
@@ -667,10 +677,10 @@ function Autenticate() {
                 <AwesomeButton
                   progress
                   springRelease
-                  style={{height: 40}}
+                  style={{ height: 40 }}
                   backgroundDarker={'#fffb0060'}
                   borderColor={'aqua'}
-                  width={150}
+                  width={200}
                   height={40}
                   borderRadius={30}
                   textColor="black"
@@ -754,7 +764,7 @@ function Autenticate() {
                   Iniciar Session
                 </AwesomeButton>
                 <AwesomeButton
-                  style={{alignItems: 'flex-start', height: 40}}
+                  style={{ alignItems: 'flex-start', height: 40 }}
                   backgroundShadow={'#4C63D2'}
                   backgroundColor={'#fffb00'}
                   backgroundDarker={'#ff0000'}
@@ -774,7 +784,7 @@ function Autenticate() {
                     });
                   }}>
                   <Text
-                    style={{alignContent: 'flex-start', fontWeight: 'bold'}}>
+                    style={{ alignContent: 'flex-start', fontWeight: 'bold' }}>
                     {' '}
                     <Nueso
                       name={'facebook-square'}
@@ -786,7 +796,7 @@ function Autenticate() {
                 </AwesomeButton>
 
                 <AwesomeButton
-                  style={{alignContent: 'flex-start', height: 40}}
+                  style={{ alignContent: 'flex-start', height: 40 }}
                   backgroundShadow={'#4C63D2'}
                   backgroundColor={'#fffb00'}
                   springRelease
@@ -804,7 +814,7 @@ function Autenticate() {
                     })
                   }>
                   <Text
-                    style={{alignContent: 'flex-start', fontWeight: 'bold'}}>
+                    style={{ alignContent: 'flex-start', fontWeight: 'bold' }}>
                     {' '}
                     <Nueso name={'google'} size={20} color="red" /> Iniciar con
                     Google{' '}
@@ -856,7 +866,7 @@ function Auth() {
               '#fcf9b670',
               '#182B3730',
             ]}
-            style={{position: 'absolute', top: 0, left: 0, right: 0, bottom: 0}}
+            style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0 }}
             stops={[0.1, 0.1, 0.1, 0.1, 0.1]}
             center={[220, 0]}
             radius={190}
@@ -887,7 +897,7 @@ function Auth() {
                 alignItems: 'center',
               }}>
               <TouchableHighlight
-                style={{width: 30, height: 50, borderRadius: 200}}
+                style={{ width: 30, height: 50, borderRadius: 200 }}
                 activeOpacity={0.2}
                 underlayColor="#ff000080"
                 onPress={() => {
@@ -903,13 +913,13 @@ function Auth() {
                   }}>
                   <Icon
                     name={'arrow-right'}
-                    style={{bottom: 25}}
+                    style={{ bottom: 25 }}
                     size={100}
                     color="yellow"
                   />
                   <Icon
                     name={'arrow-right'}
-                    style={{right: 55, bottom: 15}}
+                    style={{ right: 55, bottom: 15 }}
                     size={80}
                     color="#ff000080"
                   />
@@ -932,7 +942,7 @@ function Auth() {
           headerLeft: () => (
             <View style={{}}>
               <TouchableHighlight
-                style={{width: 50, height: 50, borderRadius: 200}}
+                style={{ width: 50, height: 50, borderRadius: 200 }}
                 activeOpacity={0.2}
                 underlayColor="#ff000080"
                 onPress={() => {
@@ -948,13 +958,13 @@ function Auth() {
                   }}>
                   <Icon
                     name={'arrow-left'}
-                    style={{bottom: 25}}
+                    style={{ bottom: 25 }}
                     size={100}
                     color="yellow"
                   />
                   <Icon
                     name={'arrow-left'}
-                    style={{right: 55, bottom: 15}}
+                    style={{ right: 55, bottom: 15 }}
                     size={80}
                     color="#ff000080"
                   />
@@ -998,7 +1008,7 @@ function Auth() {
               '#ff000070',
               '#ff000030',
             ]}
-            style={{position: 'absolute', top: 0, left: 0, right: 0, bottom: 0}}
+            style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0 }}
             stops={[0.1, 0.1, 0.1, 0.1, 0.1]}
             center={[220, 0]}
             radius={190}

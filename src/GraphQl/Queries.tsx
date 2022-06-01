@@ -49,6 +49,7 @@ export const GET_CATEGORIES = gql`
   }
 `;
 
+
 export const ADD_PRODUCTO = gql`
   mutation AddProducto($createproduct: ProductsInput!) {
     createproduct(myval: $createproduct) {
@@ -57,16 +58,140 @@ export const ADD_PRODUCTO = gql`
   }
 `;
 
-export const GET_PRODUCTO = gql`
-  query Get_Producto {
-    Products {
-      brand
-      description
-      price
-      old_price
-      product_id
-      product_name
-      quantity
+export const ADD_RELATION_SERVICE = gql`
+  mutation AddRelationService($myval:Int!){
+    AgregateRelationService(service_id: $myval)
+  }
+`;
+
+export const UPDATE_RELATION_LOCATION_USER=gql`
+  mutation UpdateRelationLocation($location: GpsUserInput!) {
+    UpdateRelationLocation(location: $location)
+  }
+`;
+
+
+
+export const GET_LOCATION_SERVICES = gql`
+  query Get_Location_Services {
+    GpsServices {
+      gpsService_id
+      latitud
+      longitud
+      gps_relation {
+        product_name
+      }
     }
   }
 `;
+
+export const GET_SERVICE_LOCATION= gql`
+query Get_Service_Location {
+  Products {
+    product_name
+    price_unity
+    gps_relation {
+      latitud
+      longitud
+    }
+  }
+}
+`;
+export const GET_PRODUCTO = gql`
+  query Get_Producto {
+    Products {
+      description
+      old_price
+      product_id
+      product_name
+      gps_relation {
+        latitud
+        longitud
+        gpsService_id
+        direccion
+      }
+      brands_products {
+        brand_name
+      }
+      category_products {
+        category_name
+      }
+      image_realation {
+        image_name
+        image_description
+      }
+      user_relation {
+        email
+      }
+    }
+  }
+`;
+export const GET_PRODUCTO_PROFILE = gql`
+  query Get_Producto_Profile {
+    ProductsProfile {
+      description
+      old_price
+      product_id
+      product_name
+      price_unity
+      brands_products {
+        brand_name
+      }
+      category_products {
+        category_name
+      }
+      image_realation {
+        image_name
+        image_description
+      }
+    }
+  }
+`;
+
+
+export const GET_PRODUCTO_PROFILE_USERS=gql`
+  query Get_PRoducto_Profile_USers{
+    ProductsProfile {
+      product_name
+      gps_relation {
+        latitud
+        longitud
+      }
+      image_realation {
+        image_name
+        image_description
+      }
+      products_contrate {
+        username
+        email
+        uid
+        photo
+        gps_id {
+          latitud
+          longitud
+        }
+      }
+    }
+  }
+`;
+export const GET_PRODUCTO_PROFILE_CONTRATE=gql`
+  query Get_Producto_Profile_Contrate{
+    ProductsProfileContrate {
+      description
+      old_price
+      product_id
+      product_name
+      price_unity
+      brands_products {
+        brand_name
+      }
+      category_products {
+        category_name
+      }
+      image_realation {
+        image_name
+        image_description
+      }
+
+    }
+  }`;

@@ -33,6 +33,8 @@ import Auth from './Auth';
 import AppIndex from '../Component';
 import Preview from '../Navigation/Preview';
 import auth from '@react-native-firebase/auth';
+import Contratados from '../Navigation/Contratados';
+import ClientIndex from '../Navigation/Dranwable/TabsDraws/atoms/ClientIndex';
 
 // type ProfileScreenHomeNavigation = StackNavigationProp<RootMain, 'Main'>;
 const Drawer = createDrawerNavigator<SubDrawerParamList>();
@@ -48,6 +50,7 @@ type DrawMenuProps = {
   colore: keyof SubDrawerParamList;
   changeColor: Function;
 };
+
 function DrawerMenu({
   IconName,
   Name,
@@ -76,17 +79,17 @@ function DrawerMenu({
             justifyContent: 'center',
             paddingVertical:11,
           }}>
-          <View style={{flex: 8.5, justifyContent: 'center',alignContent:'center'}}>
+          <View style={{justifyContent: 'center',alignContent:'center'}}>
             <Text
-              style={{
+              style={{paddingLeft:5,
                 textShadowColor:  colore ==callNavigate ? 'white' : 'black',
                 color: colore == callNavigate ? 'white' : 'black',
-                textShadowRadius: 10,
-                fontWeight: '100',
+                textShadowRadius: 3,
+                fontWeight: 'bold',
                 fontSize: 18, textAlignVertical: 'center',
               }}>
               {' '}
-              <Icon name={IconName} size={17} /> {Name}
+              <Icon name={IconName} size={15} /> {Name}
             </Text>
           </View>
         </View>
@@ -190,6 +193,13 @@ const Menu: React.FC<{propiedades: DrawerContentComponentProps}> = ({
           changeColor={setstate}
         />
         <DrawerMenu
+          IconName="store-alt"
+          Name="Contratados"
+          callNavigate="Contratados"
+          colore={stateItem}
+          changeColor={setstate}
+        />
+        <DrawerMenu
           IconName="business-time"
           Name="Mis Clientes"
           callNavigate="Ventas"
@@ -276,8 +286,13 @@ function ScrennMain() {
       />
       <Drawer.Screen
         name="Ventas"
-        component={Ventas}
-        options={{title: 'Mis Clientes'}}
+        component={ClientIndex}
+        options={{title: 'Mis Clientes',headerTitleStyle:{fontWeight:'bold'}}}
+      />
+      <Drawer.Screen
+        name="Contratados"
+        component={Contratados}
+        options={{title: 'Contratados',headerTitleStyle:{fontWeight:'bold'}}}
       />
       <Drawer.Screen
         name="Transacciones"

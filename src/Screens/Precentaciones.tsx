@@ -140,7 +140,6 @@ function Precentaciones({
             </TouchableHighlight>
           </RadialGradient>
         </View>
-
         <View
           style={{
             zIndex: 1,

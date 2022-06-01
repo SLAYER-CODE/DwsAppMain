@@ -31,10 +31,13 @@ import {ApolloClient, InMemoryCache, ApolloProvider} from '@apollo/client';
 import {appclient} from './src/apollo/client';
 import {Settings} from 'react-native-fbsdk-next';
 import {MMKV} from 'react-native-mmkv';
+import MapboxGL from '@rnmapbox/maps';
 
 export const storagemkv = new MMKV();
 const App = () => {
   Settings.initializeSDK();
+  const MAPBOX_ACCESS_TOKEN = 'pk.eyJ1IjoidGlvcGF6aGMiLCJhIjoiY2tuYWoydnA1MHRrYzJ3cGpvaWx1aW92NCJ9.xS5kjuxwEodkv-Y6iqRGhg'
+  MapboxGL.setAccessToken(MAPBOX_ACCESS_TOKEN);
   return (
     <ApolloProvider client={appclient}>
       <Fragment>

@@ -1,4 +1,4 @@
-import React, {RefObject, useState} from 'react';
+import React, { RefObject, useState } from 'react';
 
 //importamos el AppRegister
 
@@ -16,9 +16,10 @@ import {
   Platform,
   UIManager,
   ViewPropsAndroid,
+  PermissionsAndroid,
 } from 'react-native';
-import {} from 'react-native-animatable';
-import {styles} from '../../../Stylos/Styles';
+import { } from 'react-native-animatable';
+import { styles } from '../../../Stylos/Styles';
 
 // import { ViroARSceneNavigator } from 'react-viro';
 
@@ -32,36 +33,51 @@ import {
   useLazyQuery,
   useApolloClient,
 } from '@apollo/client';
+
+import IconoFont from 'react-native-vector-icons/Ionicons';
 import Icon from 'react-native-vector-icons/FontAwesome5';
-import {OutlinedTextField, TextField} from 'rn-material-ui-textfield';
+import IconAwesone from 'react-native-vector-icons/FontAwesome';
+import IconEnty from 'react-native-vector-icons/Entypo'
+import AntDesign from 'react-native-vector-icons/AntDesign'
+
+
+import { OutlinedTextField, TextField } from 'rn-material-ui-textfield';
 // import ARCORE from 'react-native-arcore';
-import {useQuery, gql} from '@apollo/client';
+import { useQuery, gql } from '@apollo/client';
 import {
   ADD_PRODUCTO,
+  ADD_RELATION_SERVICE,
   GET_CATEGORIES,
   GET_PRODUCTO,
   LOAD_SESSIONS,
 } from '../../../GraphQl/Queries';
 
 // import Camera from 'react-native-camera'
-import {RNCamera} from 'react-native-camera';
+import { RNCamera } from 'react-native-camera';
 import {
   TouchableHighlight,
   TouchableOpacity,
 } from 'react-native-gesture-handler';
-import {Item} from 'react-navigation-header-buttons';
+import { Item } from 'react-navigation-header-buttons';
 import AwesomeButton, {
   AfterPressFn,
 } from 'react-native-really-awesome-button-fixed';
-import {categoria, publicacion} from '../../../GraphQl/TypesGrapql';
+import { categoria, publicacion } from '../../../GraphQl/TypesGrapql';
 import auth from '@react-native-firebase/auth';
-import {Easing} from 'react-native-reanimated';
+import { Easing } from 'react-native-reanimated';
 import {
   createDrawerNavigator,
   DrawerNavigationProp,
 } from '@react-navigation/drawer';
-import {SubDrawerParamList} from '../../../TypeDefinitios/DefinitiosNavigateMain';
-import {useNavigation} from '@react-navigation/native';
+import { HomeUbication, SubDrawerParamList } from '../../../TypeDefinitios/DefinitiosNavigateMain';
+import { useNavigation } from '@react-navigation/native';
+import { BrandsInput, CategoriesInput, GetCategories, Get_Producto_Products, Get_Producto_Products_brands_products, Get_Producto_Products_category_products, Get_Producto_Products_image_realation, GpsServicesInput, ImageProductInput } from '../../../GraphQl/Types';
+import PagerView from 'react-native-pager-view';
+import { red100 } from 'react-native-paper/lib/typescript/styles/colors';
+import MapboxGL from '@rnmapbox/maps';
+import { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import { HomeLocationProps } from './atoms/HomeLocation';
+
 
 const styless = StyleSheet.create({
   container: {
@@ -79,20 +95,55 @@ const styless = StyleSheet.create({
     fontSize: 42,
   },
 });
-
-interface finalpubcategorias {
-  category_name: string;
-}
+const requestCameraPermission = async () => {
+  try {
+    const granted = await PermissionsAndroid.request(
+      PermissionsAndroid.PERMISSIONS.ACCESS_FINE_LOCATION,
+      {
+        title: "Cool Photo App Camera Permission",
+        message:
+          "Cool Photo App needs access to your camera " +
+          "so you can take awesome pictures.",
+        buttonNeutral: "Ask Me Later",
+        buttonNegative: "Cancel",
+        buttonPositive: "OK"
+      }
+    );
+    if (granted === PermissionsAndroid.RESULTS.GRANTED) {
+      console.log("You can use the camera");
+    } else {
+      console.log("Camera permission denied");
+    }
+  } catch (err) {
+    console.warn(err);
+  }
+};
+// interface CategoriesInput {
+//   category_name: string;
+// }
+// interface BrandsInput{
+//   brand_name: string;
+// }
 
 function HomeTab() {
+
+  type ProfileScreenHomeNavigation = NativeStackNavigationProp<
+    HomeUbication,
+    'Home'>;
+    const NavigationHome = useNavigation<ProfileScreenHomeNavigation>();
+
+  requestCameraPermission()
   const [publicaciones, setPublicaciones] = React.useState([]);
   const [imagesCapture, setImagesCapture] = React.useState<String[]>([]);
   const [activecamera, setactivecamera] = React.useState<Boolean>(false);
+  const [activelocation, setactivelocation] = React.useState<Boolean>(false);
   const [activeetiquetas, setactiveetiquetas] = React.useState<Boolean>(false);
+
+
   const client = useApolloClient();
 
-  const {loading, error, data, refetch} = useQuery(GET_PRODUCTO);
-  
+  const { loading, error, data, refetch } = useQuery(GET_PRODUCTO);
+
 
   //Todo lo relacionado con el scrollView
 
@@ -142,10 +193,11 @@ function HomeTab() {
     }
   }, [data]);
 
-  const [categorias, setCategorias] = React.useState<categoria[]>([]);
+  const [categorias, setCategorias] = React.useState<Get_Producto_Products_category_products[]>([]);
   const [categoriasPublication, setCategoriasPublication] = React.useState<
     number[]
   >([]);
+  const [locationPointer, setlocationPointer] = React.useState<number[][]>([]);
 
   // const [getCategorias] = useLazyQuery(GET_CATEGORIES, {
   //     onCompleted: data => console.log(data)
@@ -183,13 +235,13 @@ function HomeTab() {
             alignItems: 'center',
           },
         ]}>
-        <Text style={{fontWeight: 'bold', fontSize: 60}}>
+        <Text style={{ fontWeight: 'bold', fontSize: 60 }}>
           Cargando.. <Icon size={60} name="sync" />
         </Text>
       </SafeAreaView>
     );
   } else if (error) {
-    
+
     return (
       <SafeAreaView
         style={[
@@ -214,7 +266,7 @@ function HomeTab() {
             alignItems: 'center',
             alignContent: 'center',
           }}>
-          <Text style={{fontWeight: 'bold', fontSize: 50}}>
+          <Text style={{ fontWeight: 'bold', fontSize: 50 }}>
             Error al cargar <Icon size={55} name="plug" />
           </Text>
           <AwesomeButton
@@ -226,10 +278,10 @@ function HomeTab() {
             borderRadius={30}
             textColor="black"
             borderWidth={1.5}
-            onPress={ () => {
-                refetch()
+            onPress={() => {
+              refetch()
             }}>
-            <Text style={{fontWeight: 'bold'}}>Recargar</Text>
+            <Text style={{ fontWeight: 'bold' }}>Recargar</Text>
           </AwesomeButton>
         </View>
       </SafeAreaView>
@@ -238,12 +290,13 @@ function HomeTab() {
 
   const camare = React.createRef();
   const takePicture = async function (camera) {
-    const options = {quality: 0.5, base64: true};
+    const options = { quality: 0.5, base64: true };
     const data = await camera.takePictureAsync(options);
     //  eslint-disable-next-line
-    console.log(data.uri);
+    console.warn(data.uri);
     setImagesCapture(imagesCapture.concat(data.uri));
   };
+  
   const PendingView = () => (
     <View
       style={{
@@ -263,7 +316,7 @@ function HomeTab() {
   const nav = useNavigation<ProfileScreenNavigationProp>();
 
   return (
-    <SafeAreaView style={[{backgroundColor: '#e67f12', height: '100%'}]}>
+    <SafeAreaView style={[{ backgroundColor: '#e67f12', height: '100%' }]}>
       <ScrollView style={styless.scrollView}>
         {/* {LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut)} */}
 
@@ -274,10 +327,9 @@ function HomeTab() {
             borderWidth: 3,
             borderRadius: 30,
             shadowRadius: 30,
-            borderColor: '#4504FF50',
+            borderColor: 'purple',
             backgroundColor: '#00000040',
             margin: 15,
-            paddingBottom: 10,
             paddingLeft: 10,
             paddingRight: 10,
           }}>
@@ -292,7 +344,9 @@ function HomeTab() {
             <Text
               style={{
                 margin: 10,
-                color: 'gray',
+                textShadowRadius: 3,
+                textShadowColor: 'black',
+                color: 'yellow',
                 fontWeight: '900',
                 fontSize: 15,
                 textAlign: 'left',
@@ -300,7 +354,7 @@ function HomeTab() {
               }}>
               <Icon
                 name="lightbulb"
-                style={{color: AVaddPub ? 'yellow' : 'white'}}
+                style={{ color: AVaddPub ? 'yellow' : 'white' }}
                 size={20}
               />{' '}
               Publica tu Producto..
@@ -335,7 +389,8 @@ function HomeTab() {
 
           {/* <View style={{ flex: 1, flexDirection: 'column',position: `${AVaddPub?'absolute':"relative"}`,}}> */}
           {AVaddPub && (
-            <View style={{flex: 1, flexDirection: 'column'}}>
+            <View style={{ flex: 1, flexDirection: 'column' }}>
+
               <TextField
                 ref={PubNombre}
                 containerStyle={{
@@ -343,8 +398,6 @@ function HomeTab() {
                   shadowColor: '#00FFF233',
                   shadowOpacity: 0.5,
                   shadowRadius: 100,
-                  marginLeft: 10,
-                  marginRight: 10,
                   bottom: 10,
                 }}
                 labelOffset={{
@@ -366,8 +419,6 @@ function HomeTab() {
                 titleTextStyle={{
                   fontWeight: 'bold',
                   textAlign: 'center',
-                  marginLeft: 13,
-                  marginRight: 10,
                   letterSpacing: 3,
                 }}
                 style={{
@@ -396,10 +447,10 @@ function HomeTab() {
                 clearTextOnFocus={false}
                 returnKeyType="done"
                 label="Nombre"
-                // labelOffset={undefined}
-                // title={"Nombre"}
-                // maxLength={300}
-                // characterRestriction={300}
+              // labelOffset={undefined}
+              // title={"Nombre"}
+              // maxLength={300}
+              // characterRestriction={300}
               />
 
               <TextField
@@ -410,7 +461,7 @@ function HomeTab() {
                   shadowColor: '#00FFF2',
                   shadowOpacity: 0.5,
                   shadowRadius: 100,
-                  bottom: 30,
+                  bottom: 35,
                 }}
                 labelTextStyle={{
                   fontWeight: 'bold',
@@ -432,7 +483,6 @@ function HomeTab() {
                   // marginTop:20,
                   paddingTop: 15,
                   borderRadius: 10,
-
                   borderBottomLeftRadius: 20,
                   borderBottomRightRadius: 20,
                   padding: 5,
@@ -457,7 +507,8 @@ function HomeTab() {
                 returnKeyType="done"
                 // label="Descripccion..."
                 title={'Descripccion...'}
-                maxLength={300}
+                maxLength={250}
+
                 characterRestriction={300}
               />
 
@@ -469,7 +520,7 @@ function HomeTab() {
                   flexWrap: 'wrap',
                   flexGrow: 20,
                 }}>
-                <View style={{width: 165}}>
+                <View style={{ width: 165 }}>
                   <TextField
                     ref={PubMarca}
                     multiline={false}
@@ -478,8 +529,6 @@ function HomeTab() {
                       shadowColor: '#00FFF233',
                       shadowOpacity: 0.5,
                       shadowRadius: 100,
-                      marginLeft: 20,
-                      marginRight: 20,
                       bottom: 30,
                     }}
                     labelTextStyle={{
@@ -523,7 +572,7 @@ function HomeTab() {
                   />
                 </View>
 
-                <View style={{width: 165}}>
+                <View style={{ width: 165 }}>
                   <TextField
                     ref={PubCantidad}
                     multiline={false}
@@ -532,8 +581,6 @@ function HomeTab() {
                       shadowColor: '#00FFF233',
                       shadowOpacity: 0.5,
                       shadowRadius: 100,
-                      marginLeft: 20,
-                      marginRight: 20,
                       bottom: 30,
                     }}
                     labelTextStyle={{
@@ -614,19 +661,19 @@ function HomeTab() {
                     shadowColor: 'red',
                     fontSize: 15,
                     textDecorationLine: 'underline',
-                    color: `${activecamera ? 'orange' : 'red'}`,
+                    color: `${activecamera ? 'orange' : 'yellow'}`,
                     marginRight: 10,
                   }}>
                   Insertar imagen <Icon size={20} name="image" />
                 </Text>
                 <Text
                   onPress={async () => {
-                    const {data} = await client.query({
+                    const { data } = await client.query<GetCategories>({
                       query: GET_CATEGORIES,
                     });
 
-                    console.log(data);
-                    setCategorias(data['Categories']);
+                    setCategorias(data.Categories);
+
                     LayoutAnimation.configureNext(
                       LayoutAnimation.Presets.easeInEaseOut,
                     );
@@ -637,12 +684,38 @@ function HomeTab() {
                     fontWeight: 'bold',
                     fontSize: 15,
                     textDecorationLine: 'underline',
-                    color: `${activeetiquetas ? 'orange' : 'red'}`,
+                    color: `${activeetiquetas ? 'orange' : 'yellow'}`,
                     marginLeft: 10,
                   }}>
                   <Icon size={20} name="star" /> Insertar Etiquetas
                 </Text>
               </View>
+              <Text
+                onPress={() => {
+                  LayoutAnimation.configureNext(
+                    LayoutAnimation.Presets.linear,
+                  );
+                  setactivelocation(!activelocation);
+                }}
+                style={{
+                  textShadowRadius: 10,
+                  fontWeight: 'bold',
+                  shadowRadius: 10,
+                  shadowColor: 'red',
+                  fontSize: 15,
+                  textDecorationLine: 'underline',
+                  color: `${activecamera ? 'orange' : 'yellow'}`,
+                  marginRight: 10, bottom: 25,
+                  alignContent: 'center',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  textAlignVertical: 'center',
+                  textAlign: 'center'
+                }}>
+                Insertar Ubicacion <IconEnty size={20} name="location" />
+              </Text>
+
+
               <View
                 style={{
                   bottom: 30,
@@ -670,7 +743,7 @@ function HomeTab() {
                       marginTop: 10,
                     }}>
                     {categorias.length != 0 ? (
-                      categorias.map((item: categoria, dx) => {
+                      categorias.map((item: Get_Producto_Products_category_products, dx) => {
                         return (
                           <View
                             style={{
@@ -682,13 +755,13 @@ function HomeTab() {
                               paddingLeft: 10,
                               paddingRight: 10,
                               backgroundColor:
-                                item.category_id in categoriasPublication
+                                item.category_name in categoriasPublication
                                   ? '#17a476'
                                   : '#00eefb',
                             }}
-                            key={item.category_id}>
+                            key={item.category_name}>
                             <Text
-                              style={{fontWeight: 'bold', fontSize: 15}}
+                              style={{ fontWeight: 'bold', fontSize: 15 }}
                               onPress={() => {
                                 console.log(categoriasPublication);
                                 setCategoriasPublication(
@@ -751,7 +824,7 @@ function HomeTab() {
                             }}
                             key={dx}>
                             <Text
-                              style={{fontWeight: 'bold', fontSize: 15}}
+                              style={{ fontWeight: 'bold', fontSize: 15 }}
                               onPress={() => {
                                 console.log(categoriasPublication);
                                 setCategoriasPublication(
@@ -784,6 +857,69 @@ function HomeTab() {
 
               <View
                 ref={PubCameraScroll}
+                style={{ bottom: 25 }}>
+                {activelocation ? (
+                  <View
+
+                    style={{
+
+                      top: 6,
+                      overflow: 'scroll',
+                      flex: 1,
+                      zIndex: 1,
+                      position: `relative`,
+                      bottom: 0,
+                      paddingRight: 80,
+                      width: '100%',
+                      alignContent: 'flex-start',
+                      alignSelf: 'flex-start',
+                      height: 235,
+                      padding: 5,
+                      borderWidth: 1,
+                      borderLeftWidth: 0,
+                      borderRightWidth: 0,
+                      backgroundColor: '#22FF2210', marginBottom: 10
+                    }}>
+                    <MapboxGL.MapView onPress={(b) => { console.log((b as any).queryRenderedFeaturesAtPoint), setlocationPointer(locationPointer.concat([((b.geometry as any).coordinates) as number[]])) }}
+                      localizeLabels={true}
+                      logoEnabled={false} style={{
+                        width: 325,
+                        flex: 1
+                      }}>
+
+                      <MapboxGL.UserLocation androidRenderMode='gps' showsUserHeadingIndicator={true} >
+                      </MapboxGL.UserLocation>
+                      {
+                        locationPointer.map((e, index) => {
+                          { console.log("cord") }
+                          { console.log(e) }
+                          return (
+                            <MapboxGL.PointAnnotation
+                              draggable
+                              key={index}
+                              id={index.toString()}
+                              title="Item"
+                              snippet='Sele'
+                              onSelected={
+                                () => {
+                                  setlocationPointer(locationPointer.filter(a => a != e))
+                                }
+                              }
+                              coordinate={e}>
+
+                            </MapboxGL.PointAnnotation>
+                          )
+                        })
+                      }
+                      <MapboxGL.Camera animationMode='flyTo' animationDuration={1150} followUserLocation zoomLevel={13}>
+                      </MapboxGL.Camera>
+                    </MapboxGL.MapView>
+                  </View>
+                ) : null}
+              </View>
+
+              <View
+                ref={PubCameraScroll}
                 onLayout={() => {
                   PubCameraScroll.current?.measureInWindow((x, y, w, h) => {
                     console.log(x);
@@ -802,7 +938,7 @@ function HomeTab() {
                     },
                   );
                 }}
-                style={{bottom: 25}}>
+                style={{ bottom: 25 }}>
                 {activecamera || imagesCapture.length != 0 ? (
                   <ScrollView
                     contentContainerStyle={{
@@ -811,6 +947,8 @@ function HomeTab() {
                     }}
                     horizontal={true}
                     style={{
+                      overflow: 'scroll',
+                      flex: 1,
                       zIndex: 1,
                       position: `${activecamera ? 'absolute' : 'relative'}`,
                       bottom: 0,
@@ -821,13 +959,14 @@ function HomeTab() {
                       height: 135,
                       padding: 5,
                       borderWidth: 1,
-                      borderRadius: 30,
+                      borderLeftWidth: 0,
+                      borderRightWidth: 0,
                       backgroundColor: '#22FF2210',
                     }}>
                     {imagesCapture.length != 0 ? (
                       imagesCapture.map((item, dx) => {
                         return (
-                          // <View style={{ width: 100, height: 100, borderWidth: 5 }} key={"1"}>
+                          // <View style={{ width: 100, height: 100, borderWidth: 5 }} key={dx}>
                           <Image
                             key={dx}
                             style={{
@@ -836,7 +975,7 @@ function HomeTab() {
                               borderRadius: 25,
                               marginRight: 7,
                             }}
-                            source={{uri: item.toString()}}
+                            source={{ uri: item.toString() }}
                           />
                           // </View>
                         );
@@ -854,7 +993,7 @@ function HomeTab() {
                   </ScrollView>
                 ) : null}
                 {activecamera ? (
-                  <View style={{flex: 1, width: '100%', height: 500}}>
+                  <View style={{ flex: 1, width: '100%', height: 500 }}>
                     <RNCamera
                       style={[
                         {
@@ -874,7 +1013,7 @@ function HomeTab() {
                         buttonPositive: 'Ok',
                         buttonNegative: 'Cancel',
                       }}>
-                      {({camera, status, recordAudioPermissionStatus}) => {
+                      {({ camera, status, recordAudioPermissionStatus }) => {
                         if (status !== 'READY') return <PendingView />;
                         return (
                           <>
@@ -892,7 +1031,7 @@ function HomeTab() {
                                   height: 70,
                                   backgroundColor: '#FFFFFF00',
                                 }}>
-                                <Text style={{fontSize: 14}}>
+                                <Text style={{ fontSize: 14 }}>
                                   {' '}
                                   <Icon name="sort-up" size={70} />{' '}
                                 </Text>
@@ -916,7 +1055,7 @@ function HomeTab() {
                                   height: 70,
                                   backgroundColor: '#FFFFFF00',
                                 }}>
-                                <Text style={{fontSize: 14}}>
+                                <Text style={{ fontSize: 14 }}>
                                   {' '}
                                   <Icon name="camera" size={70} />{' '}
                                 </Text>
@@ -981,10 +1120,11 @@ function HomeTab() {
                 keyboardType="decimal-pad"
                 keyboardAppearance="dark"
                 lineType="dashed"
+                lineWidth={4}
                 label="Precio"
               />
               <AwesomeButton
-                style={{marginTop: 20, width: '100%'}}
+                style={{ width: '100%', marginBottom: 10 }}
                 progress
                 springRelease
                 backgroundDarker={'#36A382'}
@@ -997,36 +1137,62 @@ function HomeTab() {
                 borderWidth={1.5}
                 onPress={(nextt?: AfterPressFn) => {
                   nextt!(async () => {
-                    const generateCategories: finalpubcategorias[] = [];
+                    //Generando las categorias
+                    const generateCategories: CategoriesInput[] = [];
                     categoriasPublication.forEach(e => {
                       console.log(e);
-                      console.log(categorias);
                       generateCategories.push({
                         category_name:
                           categorias[e]['category_name'].toString(),
                       });
                     });
-                    console.log(generateCategories);
-                    console.log('Iniciando consulta');
-                    
-                    const {data, errors: final} = await client.mutate({
+                    //Creando las Marcas:
+                    const generateBrands: BrandsInput[] = [];
+
+                    const generateImages: ImageProductInput[] = [];
+                    imagesCapture.forEach((e) => {
+                      generateImages.push({
+                        image_name: e.toString(),
+                        image_description: (new Date()).toString()
+                      })
+                    })
+
+                    const generateLocations: GpsServicesInput[] = [];
+                    locationPointer.forEach((e) => {
+                      generateLocations.push({
+                        direccion: "Sin direccion",
+                        latitud: e[0].toString(),
+                        longitud: e[1].toString()
+                      })
+                    })
+                    console.log("ABECEDE")
+                    console.log(generateImages)
+                    const { data, errors: final } = await client.mutate({
                       mutation: ADD_PRODUCTO,
                       variables: {
-                        data: {
-                          createproductSessionsMyval2: {
-                            product_name: PubNombre.current?.value(),
-                            description: Pubdescripcion.current?.value(),
-                            price: parseFloat(
-                              PubPrecio.current?.value().toString()!,
-                            ),
-                            old_price: parseFloat(
-                              PubPrecio.current?.value().toString()!,
-                            ),
-                            quantity: parseInt(PubCantidad.current?.value()!),
-                            brand: PubMarca.current?.value(),
-                            category_products: generateCategories,
-                          },
+                        // data : {
+                        createproduct: {
+                          product_name: PubNombre.current?.value(),
+                          category_products: generateCategories,
+                          price_cantidad: parseFloat(
+                            PubPrecio.current?.value().toString()!,
+                          ),
+                          description: Pubdescripcion.current?.value(),
+                          quantity_cantidad: parseInt(PubCantidad.current?.value()!),
+
+                          old_price: parseFloat(
+                            PubPrecio.current?.value().toString()!
+                          ),
+                          brands_products: generateBrands,
+                          price_unity: parseFloat(
+                            PubPrecio.current?.value().toString()!,
+                          ),
+                          update_product: null,
+                          quantity_unity: null,
+                          image_realation: generateImages,
+                          gps_relation: generateLocations
                         },
+                        // },
                         // createproductSessionsMyval2: {
                         //     brand: imagesCapture.length != 0 ? imagesCapture.toString() : 'null',
                         //     description: Pubdescripcion.current?.value(),
@@ -1047,7 +1213,7 @@ function HomeTab() {
                     }
                   });
                 }}>
-                <Text style={{color: 'blue', fontWeight: 'bold', fontSize: 20}}>
+                <Text style={{ color: 'blue', fontWeight: 'bold', fontSize: 20 }}>
                   Publicar <Icon color="#fff000" size={20} name="sign-in-alt" />
                 </Text>
               </AwesomeButton>
@@ -1055,9 +1221,9 @@ function HomeTab() {
           )}
         </View>
 
-        <View style={{flex: 1, flexDirection: 'column-reverse'}}>
-          {publicaciones.map((item: publicacion, dx) => {
-            console.log(item.brand);
+        <View style={{ flex: 1, flexDirection: 'column-reverse', bottom: -20 }}>
+          {publicaciones.map((item: Get_Producto_Products, dx) => {
+            
             const pwd = new Date();
             return (
               <View
@@ -1069,6 +1235,45 @@ function HomeTab() {
                   borderColor: 'orange',
                   margin: 15,
                 }}>
+                <View
+                  style={{
+                    position: 'relative',
+                    flex: 1,
+                    flexDirection: 'row',
+                    backgroundColor: 'brown',
+                    borderTopEndRadius: 30,
+                    borderTopStartRadius: 30,
+                  }}>
+                  <Image
+                    style={{
+                      height: 50,
+                      width: 50,
+                      borderRadius: 90,
+                      padding: 10,
+                      margin: 5,
+                    }}
+                    source={require('./ImagenTest/User.jpg')}
+                  />
+                  <View
+                    style={{ flex: 1, marginLeft: 5, flexDirection: 'column' }}>
+                    <Text style={{ fontSize: 21 }}>{item.product_name}</Text>
+                    <View
+                      style={{ flex: 1, marginLeft: 0, flexDirection: 'row' }}>
+                      <Text style={{ fontSize: 13 }}>
+                        {' '}
+                        {auth().currentUser?.email}{' '}
+                      </Text>
+                      <Text style={{ fontSize: 13, marginLeft: 20 }}>
+                        <IconoFont name='ios-timer-outline' />
+                        {pwd.getDay() +
+                          pwd.getUTCHours() +
+                          ':' +
+                          pwd.getMinutes()}
+                      </Text>
+                    </View>
+                  </View>
+                </View>
+
                 <View
                   style={{
                     width: 50,
@@ -1101,13 +1306,13 @@ function HomeTab() {
                 <View
                   style={{
                     zIndex: 21,
-                    borderRadius: 30,
-                    bottom: 100,
+                    borderRadius: 25,
+                    bottom: 0,
                     position: 'absolute',
                     height: 200,
                     width: '100%',
                     borderWidth: 2,
-                    backgroundColor: '#FFFFFF40',
+                    backgroundColor: '#FFFFFF50',
                   }}>
                   <Text
                     style={{
@@ -1116,65 +1321,96 @@ function HomeTab() {
                       fontFamily: 'Times New Roman',
                       fontWeight: 'bold',
                       shadowColor: 'red',
-                      shadowOpacity: 20,
-                      shadowRadius: 100,
                       color: '#71058b',
-                      fontSize: 25,
-                      width: '100%',
-                      justifyContent: 'center',
-                      textAlign: 'center',
+                      textShadowRadius: 5,
+                      textShadowColor: "white",
+                      fontSize: 20,
+                      paddingLeft: 20,
+                      justifyContent: 'flex-start',
+                      textAlign: 'left',
                       borderBottomWidth: 4,
                     }}>
-                    <Icon name="scroll" size={20} /> Descripccion:
+                    <Icon name="scroll" size={20} /> Descripcción:
                   </Text>
                   <Text
                     style={{
-                      fontSize: 15,
-                      marginLeft: 20,
-                      marginRight: 20,
+                      fontSize: 17,
+                      margin: 10,
                       justifyContent: 'center',
-                      fontWeight: 'bold',
+                      textShadowColor: 'white',
+                      textShadowRadius: 10,
+                      color: 'black', fontWeight: "bold",
+                      fontFamily: 'cursive',
                     }}>
                     {item.description}
                   </Text>
                 </View>
-
                 <View
                   style={{
-                    zIndex: 20,
+                    zIndex: 100,
                     position: 'absolute',
-                    width: 200,
-                    height: 50,
-                    borderWidth: 5,
                     borderRadius: 30,
-                    borderColor: 'orange',
-                    marginLeft: 0,
-                    backgroundColor: '#e2572e',
+                    marginTop: 70,
+                    marginLeft: 20,
                   }}>
                   <Text
                     style={{
                       zIndex: 100,
                       alignContent: 'center',
                       textAlign: 'center',
-                      color: '#188000',
-                      shadowColor: '#188000',
+                      color: 'yellow',
+                      shadowColor: '#000',
+                      shadowOpacity: 20,
+                      textShadowColor: 'red',
+                      textShadowOffset: { width: -1, height: 1 },
+                      textShadowRadius: 10,
                       shadowRadius: 100,
                       fontWeight: 'bold',
-                      fontSize: 30,
+                      fontSize: 20,
                     }}>
-                    <Icon name="dollar-sign" size={30}></Icon>
-                    {item.price}
+                    {item.product_name}
+                  </Text>
+                </View>
+                <View
+                  style={{
+                    zIndex: 100,
+                    position: 'absolute',
+                    borderWidth: 5,
+                    borderRadius: 30,
+                    borderColor: 'orange',
+                    right: 10,
+                    padding: 10,
+                    bottom: "30%",
+                    backgroundColor: 'yellow',
+                  }}>
+                  <Text
+                    style={{
+                      zIndex: 100,
+                      alignContent: 'center',
+                      textAlign: 'center',
+                      color: 'red',
+                      shadowColor: '#fff',
+                      shadowOpacity: 20,
+                      textShadowColor: 'yellow',
+                      textShadowOffset: { width: -1, height: 1 },
+                      textShadowRadius: 10,
+                      shadowRadius: 100,
+                      fontWeight: 'bold',
+                      fontSize: 20,
+                    }}>
+                    <Icon name="dollar-sign" size={20}></Icon>
+                    {item.old_price}
                   </Text>
                 </View>
                 <View
                   style={{
                     zIndex: 25,
                     position: 'absolute',
-                    bottom: 100,
-                    right: 100,
+                    bottom: 10,
+                    right: 50,
                   }}>
                   <AwesomeButton
-                    style={{zIndex: 30, position: 'absolute'}}
+                    style={{ zIndex: 30, position: 'absolute' }}
                     textLineHeight={20}
                     progress
                     springRelease
@@ -1182,104 +1418,122 @@ function HomeTab() {
                     backgroundColor={'orange'}
                     borderColor={'aqua'}
                     width={130}
-                    height={40}
+                    height={35}
                     borderRadius={30}
                     textColor="black"
                     borderWidth={1.5}
-                    onPress={(nextt?: AfterPressFn) => {}}>
-                    <Text>!Comprar AHORA!</Text>
+                    onPress={(nextt?: AfterPressFn) => { 
+                      NavigationHome.navigate("Location",{Locations:item.gps_relation,Name:item.product_name})
+                      nextt?.call(0,(()=>{}))
+                    }}>
+
+                    <Text>Navegar <Icon name='location-arrow'></Icon> </Text>
                   </AwesomeButton>
                 </View>
 
-                {item.brand != 'null' ? (
-                  <ScrollView
-                    contentContainerStyle={{
-                      flexGrow: 1,
-                      flexDirection: 'row-reverse',
-                    }}
-                    horizontal={true}
+                <View
+                  style={{
+                    zIndex: 25,
+                    position: 'absolute',
+                    bottom: 10,
+                    left: 50,
+                  }}>
+                  <AwesomeButton
+                    style={{ zIndex: 30, position: 'absolute' }}
+                    textLineHeight={20}
+                    progress
+                    springRelease
+                    backgroundDarker={'red'}
+                    backgroundColor={'orange'}
+                    borderColor={'aqua'}
+                    width={130}
+                    height={35}
+                    borderRadius={30}
+                    textColor="black"
+                    borderWidth={1.5}
+                    onPress={async (nextt?: AfterPressFn) => {
+                      console.log(item.product_id)
+                      const { data, errors: final } = await client.mutate({
+                        mutation: ADD_RELATION_SERVICE,
+                        variables: {
+                          myval: parseInt(item.product_id)
+                        },
+                      });
+                      console.log(data)
+                      console.log(final)
+                      nextt?.call(0, () => { })
+                    }}>
+                    <Text>Contratar <AntDesign name='customerservice'></AntDesign> </Text>
+                  </AwesomeButton>
+                </View>
+
+                {item.image_realation != undefined && item.image_realation.length != 0 ? (
+                  <PagerView
+
+                    transitionStyle='curl'
+                    initialPage={0}
                     style={{
+                      flex: 1,
                       zIndex: 1,
-                      bottom: 0,
-                      paddingRight: 80,
                       width: '100%',
                       alignContent: 'flex-start',
                       alignSelf: 'flex-start',
                       height: 530,
-                      padding: 5,
                       borderWidth: 1,
-                      borderRadius: 30,
+                      borderBottomStartRadius: 30,
+                      borderBottomEndRadius: 30,
                       backgroundColor: '#e67f1210',
                     }}>
-                    {item.brand
-                      .split(',')
-                      .map((publication: string, itemcount) => {
+                    {item.image_realation
+                      .map((publication: Get_Producto_Products_image_realation, itemcount) => {
                         return (
-                          <>
+                          <View key={itemcount}>
                             <Image
                               style={{
-                                width: 350,
                                 height: 530,
-                                borderRadius: 30,
+                                borderBottomRightRadius: 30,
+                                borderBottomLeftRadius: 30
                               }}
-                              source={{uri: publication}}
+                              source={{ uri: publication.image_name?.toString() }}
                             />
-                          </>
+                          </View>
                         );
                       })}
-                  </ScrollView>
+                  </PagerView>
                 ) : (
                   <Image
-                    style={{width: 350, height: 530, borderRadius: 10}}
+                    style={{
+                      width: 357, height: 250, borderBottomRightRadius: 30,
+                      borderBottomLeftRadius: 30
+                    }}
                     source={require('../TabsDraws/Icon/MyLogo.png')}
                   />
                 )}
 
-                <View
-                  style={{
-                    position: 'relative',
-                    flex: 1,
-                    flexDirection: 'row',
-                    backgroundColor: '#ffffff70',
-                    marginBottom: 20,
-                    borderRadius: 25,
-                    marginLeft: 15,
-                    marginRight: 15,
-                  }}>
-                  <Image
-                    style={{
-                      height: 50,
-                      width: 50,
-                      borderRadius: 90,
-                      padding: 10,
-                      margin: 5,
-                    }}
-                    source={require('./ImagenTest/User.jpg')}
-                  />
-                  <View
-                    style={{flex: 1, marginLeft: 5, flexDirection: 'column'}}>
-                    <Text style={{fontSize: 21}}>{item.product_name}</Text>
-                    <View
-                      style={{flex: 1, marginLeft: 0, flexDirection: 'row'}}>
-                      <Text style={{fontSize: 13}}>
-                        {' '}
-                        {auth().currentUser?.email}{' '}
-                      </Text>
-                      <Text style={{fontSize: 13, marginLeft: 20}}>
-                        {pwd.getDay() +
-                          '|H and M ' +
-                          pwd.getUTCHours() +
-                          ':' +
-                          pwd.getMinutes()}
-                      </Text>
-                    </View>
-                  </View>
-                </View>
+
               </View>
+
             );
           })}
         </View>
+
       </ScrollView>
+      <AwesomeButton
+        backgroundShadow={'#fffb00'}
+        backgroundColor={'cyan'}
+        backgroundDarker={'#ff0000'}
+        borderColor={'#fffb00'}
+        width={60}
+        height={60}
+        borderRadius={60}
+        textColor="black"
+        borderWidth={1.5}
+        style={{ position: 'absolute', bottom: 10, right: 10 }}
+        onPress={() => {
+          refetch()
+        }}>
+        <Text style={{ fontWeight: 'bold' }}><IconAwesone name='refresh' size={30}></IconAwesone></Text>
+      </AwesomeButton>
     </SafeAreaView>
   );
 }
