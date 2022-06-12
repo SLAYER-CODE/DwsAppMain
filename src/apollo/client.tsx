@@ -16,7 +16,7 @@ const errorLink = onError(({ graphQLErrors, networkError }) => {
 
 
 const httpLink = createHttpLink({
-    uri: "http://192.168.0.13:2016/graphql"
+    uri: "https://documentworkservices.loca.lt/graphql"
 });
 
 const authLink = setContext(async (_, { headers }) => {
